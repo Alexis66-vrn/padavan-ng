@@ -3,10 +3,11 @@ SRC_ARCH=mipselsf-k3.4
 SRC_ARCH_PREFIX=mipsel
 #SRC_ARCH=mipssf-k3.4
 #SRC_ARCH_PREFIX=mips
-#SRC_URL=https:\/\/bin.entware.net\/$(SRC_ARCH)\/
+SRC_URL=https:\/\/bin.entware.net\/$(SRC_ARCH)\/
 #SRC_URL=https:\/\/mirrors.bfsu.edu.cn/entware\/$(SRC_ARCH)\/
+#SRC_URL=https:\/\/mirrors.cqupt.edu.cn/entware/\/$(SRC_ARCH)\/
 #SRC_URL=https:\/\/mirrors.nju.edu.cn/entware\/$(SRC_ARCH)\/
-SRC_URL=https:\/\/entware.diversion.ch\/$(SRC_ARCH)\/
+#SRC_URL=https:\/\/entware.diversion.ch\/$(SRC_ARCH)\/
 SRC_VERSION=0.0.14-1
 
 all: config_test
