@@ -105,11 +105,12 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 @HAVE_QUICTLS_TRUE@am__append_1 = ngtcp2/ngtcp2_crypto_quictls.h
-@HAVE_GNUTLS_TRUE@am__append_2 = ngtcp2/ngtcp2_crypto_gnutls.h
-@HAVE_BORINGSSL_TRUE@am__append_3 = ngtcp2/ngtcp2_crypto_boringssl.h
-@HAVE_PICOTLS_TRUE@am__append_4 = ngtcp2/ngtcp2_crypto_picotls.h
-@HAVE_WOLFSSL_TRUE@am__append_5 = ngtcp2/ngtcp2_crypto_wolfssl.h
-@HAVE_OSSL_TRUE@am__append_6 = ngtcp2/ngtcp2_crypto_ossl.h
+@HAVE_LIBRESSL_TRUE@am__append_2 = ngtcp2/ngtcp2_crypto_quictls.h
+@HAVE_GNUTLS_TRUE@am__append_3 = ngtcp2/ngtcp2_crypto_gnutls.h
+@HAVE_BORINGSSL_TRUE@am__append_4 = ngtcp2/ngtcp2_crypto_boringssl.h
+@HAVE_PICOTLS_TRUE@am__append_5 = ngtcp2/ngtcp2_crypto_picotls.h
+@HAVE_WOLFSSL_TRUE@am__append_6 = ngtcp2/ngtcp2_crypto_wolfssl.h
+@HAVE_OSSL_TRUE@am__append_7 = ngtcp2/ngtcp2_crypto_ossl.h
 subdir = crypto/includes
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_check_compile_flag.m4 \
@@ -396,7 +397,7 @@ top_srcdir = @top_srcdir@
 EXTRA_DIST = CMakeLists.txt
 nobase_include_HEADERS = ngtcp2/ngtcp2_crypto.h $(am__append_1) \
 	$(am__append_2) $(am__append_3) $(am__append_4) \
-	$(am__append_5) $(am__append_6)
+	$(am__append_5) $(am__append_6) $(am__append_7)
 all: all-am
 
 .SUFFIXES:
