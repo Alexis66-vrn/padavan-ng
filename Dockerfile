@@ -49,6 +49,7 @@ RUN apt update && \
         libogg-dev \
         libsqlite3-dev \
         libssl-dev \
+        libsystemd-dev \
         libtool \
         libtool-bin \
         libudev-dev \
