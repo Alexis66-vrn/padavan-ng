@@ -715,6 +715,11 @@ get_tcp_mss_ifname_vpns(int vpns_type)
 		return NULL;
 	else
 #endif
+#if defined (APP_WIREGUARD)
+	if (vpns_type == 3)
+		return "wg+";
+	else
+#endif
 		return "ppp+";
 }
 
@@ -728,6 +733,11 @@ get_tcp_mss_ifname_vpnc(int vpnc_type)
 	*/
 	if (vpnc_type == 2)
 		return NULL;
+	else
+#endif
+#if defined (APP_WIREGUARD)
+	if (vpnc_type == 3)
+		return IFNAME_CLIENT_WG;
 	else
 #endif
 		return IFNAME_CLIENT_PPP;
@@ -799,6 +809,11 @@ ipt_filter_rules(char *man_if, char *wan_if, char *lan_if, char *lan_ip,
 				vpnc_if = IFNAME_CLIENT_TUN;
 			else if (nvram_get_int("vpnc_ov_cnat") == 1)
 				vpnc_if = IFNAME_CLIENT_TAP;
+		} else
+#endif
+#if defined (APP_WIREGUARD)
+		if (i_vpnc_type == 3) {
+			vpnc_if = IFNAME_CLIENT_WG;
 		} else
 #endif
 			vpnc_if = IFNAME_CLIENT_PPP;
@@ -964,6 +979,12 @@ ipt_filter_rules(char *man_if, char *wan_if, char *lan_if, char *lan_ip,
 #endif
 		if (i_vpns_enable) {
 			int i_need_vpnlist = 1;
+#if defined (APP_WIREGUARD)
+			if (i_vpns_type == 3) {
+				int i_wg_port = nvram_safe_get_int("vpns_wg_port", 51820, 1, 65535);
+				fprintf(fp, "-A %s -p %s --dport %d -j %s\n", dtype, "udp", i_wg_port, logaccept);
+			} else
+#endif
 #if defined (APP_OPENVPN)
 			if (i_vpns_type == 2) {
 				const char *ov_prot = "udp";
@@ -1122,9 +1143,14 @@ ipt_filter_rules(char *man_if, char *wan_if, char *lan_if, char *lan_ip,
 			if (i_need_vpnlist) {
 				if (i_vpns_actl == 0 || i_vpns_actl == 1)
 					fprintf(fp, "-A %s -j %s\n", dtype, IPT_CHAIN_NAME_VPN_LIST);
-				else if (i_vpns_actl == 4)
+				else if (i_vpns_actl == 4) {
 					fprintf(fp, "-A %s -o %s -j %s\n", dtype, wan_if, IPT_CHAIN_NAME_VPN_LIST);
-				else
+#if defined (APP_WIREGUARD)
+					if (vpnc_if && i_vpnc_type == 3) {
+						fprintf(fp, "-A %s -o %s -j %s\n", dtype, vpnc_if, IPT_CHAIN_NAME_VPN_LIST);
+					}
+#endif
+				} else
 					fprintf(fp, "-A %s -o %s -j %s\n", dtype, lan_if, IPT_CHAIN_NAME_VPN_LIST);
 			}
 		}
@@ -1175,6 +1201,11 @@ ipt_filter_rules(char *man_if, char *wan_if, char *lan_if, char *lan_ip,
 #if defined (APP_OPENVPN)
 		if (i_vpns_type == 2 && i_vpns_ov_mode == 1)
 			fprintf(fp, "-A %s -i %s -j %s\n", dtype, IFNAME_SERVER_TUN, ftype);
+		else
+#endif
+#if defined (APP_WIREGUARD)
+		if (i_vpns_type == 3)
+			fprintf(fp, "-A %s -i %s -j %s\n", dtype, IFNAME_SERVER_WG, ftype);
 		else
 #endif
 			include_vpns_clients(fp);
@@ -1502,6 +1533,12 @@ ip6t_filter_rules(char *man_if, char *wan_if, char *lan_if,
 #endif
 		if (nvram_match("vpns_enable", "1")) {
 			int i_vpns_type = nvram_get_int("vpns_type");
+#if defined (APP_WIREGUARD)
+			if (i_vpns_type == 3) {
+				int i_wg_port = nvram_safe_get_int("vpns_wg_port", 51820, 1, 65535);
+				fprintf(fp, "-A %s -p %s --dport %d -j %s\n", dtype, "udp", i_wg_port, logaccept);
+			} else
+#endif
 #if defined (APP_OPENVPN)
 			if (i_vpns_type == 2) {
 				const char *ov_prot = "udp";
@@ -1742,6 +1779,11 @@ ipt_nat_rules(char *man_if, char *man_ip,
 
 	vpnc_if = NULL;
 	if (i_vpnc_enable) {
+#if defined (APP_WIREGUARD)
+		if (i_vpnc_type == 3) {
+			vpnc_if = IFNAME_CLIENT_WG;
+		} else
+#endif
 #if defined (APP_OPENVPN)
 		if (i_vpnc_type == 2) {
 			if (nvram_get_int("vpnc_ov_mode") == 1)
@@ -1840,6 +1882,19 @@ ipt_nat_rules(char *man_if, char *man_ip,
 			if (strcmp(vpn_net, lan_net) != 0) {
 				int i_vpns_vuse = nvram_get_int("vpns_vuse");
 				int i_vpns_actl = nvram_get_int("vpns_actl");
+#if defined (APP_WIREGUARD)
+				if (i_vpns_type == 3) {
+					if (i_vpns_actl == 0 || i_vpns_actl == 1 || i_vpns_actl == 4) {
+						include_masquerade(fp, wan_if, wan_ip, vpn_net);
+
+						/* masquerade WG client connection for WG server clients */
+						if (vpnc_if)
+							include_masquerade(fp, vpnc_if, NULL, vpn_net);
+					}
+					if (i_vpns_vuse == 2)
+						include_masquerade(fp, lan_if, lan_ip, vpn_net);
+				} else
+#endif
 #if defined (APP_OPENVPN)
 				if (i_vpns_type == 2) {
 					if (i_vpns_ov_mode == 1) {
@@ -1962,6 +2017,11 @@ ipt_nat_rules(char *man_if, char *man_ip,
 #endif
 			/* skip DMZ for local VPN server */
 			if (i_vpns_enable) {
+#if defined (APP_WIREGUARD)
+				if (i_vpns_type == 3) {
+					vpn_proto_mask |= 0x08;
+				} else
+#endif
 #if defined (APP_OPENVPN)
 				if (i_vpns_type == 2) {
 					int i_prot = nvram_get_int("vpns_ov_prot");
@@ -1986,6 +2046,11 @@ ipt_nat_rules(char *man_if, char *man_ip,
 
 			/* skip DMZ for local VPN client */
 			if (i_vpnc_enable) {
+#if defined (APP_WIREGUARD)
+				if (i_vpnc_type == 3) {
+					vpn_proto_mask |= 0x08;
+				} else
+#endif
 #if defined (APP_OPENVPN)
 				if (i_vpnc_type == 2) {
 					int i_prot = nvram_get_int("vpnc_ov_prot");
@@ -2014,6 +2079,7 @@ ipt_nat_rules(char *man_if, char *man_ip,
 			else if (wan_proto == IPV4_WAN_PROTO_PPTP)
 				vpn_proto_mask |= 0x01;
 
+// todo wireguard
 #if defined (APP_OPENVPN)
 			if (vpn_proto_mask & 0x04) {
 				if (ovpns_hash != 0) {

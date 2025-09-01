@@ -821,7 +821,24 @@ struct nvram_pair router_defaults[] = {
 	{ "vpnc_ov_ncp_clist", DEF_OVPNC_CIPH_LIST },
 	{ "vpnc_ov_compress", "1" },
 	{ "vpnc_ov_atls", "0" },
-
+#if defined (APP_WIREGUARD)
+	{ "vpns_wg_port", "51820" },
+	{ "vpns_wg_private", "" },
+	{ "vpns_wg_public", "" },
+	{ "vpns_wg_ext_addr", "" },
+	{ "vpns_wg_mtu", "1420" },
+	{ "vpnc_wg_mtu", "1420" },
+	{ "vpnc_wg_if_addr", "" },
+	{ "vpnc_wg_if_private", "" },
+	{ "vpnc_wg_if_preshared", "" },
+	{ "vpnc_wg_if_public", "" },
+	{ "vpnc_wg_if_dns", "" },
+	{ "vpnc_wg_peer_public", "" },
+	{ "vpnc_wg_peer_endpoint", "" },
+	{ "vpnc_wg_peer_port", "51820" },
+	{ "vpnc_wg_peer_keepalive", "" },
+	{ "vpnc_wg_peer_allowedips", "" },
+#endif
 	{ 0, 0 }
 };
 

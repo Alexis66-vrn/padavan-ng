@@ -86,10 +86,13 @@
 
 	struct variable variables_LANHostConfig_VPNSACLList[] = {
 			{"vpns_user_x", "32", NULL, FALSE},
-			{"vpns_pass_x", "32", NULL, FALSE},
+			{"vpns_pass_x", "44", NULL, FALSE},
 			{"vpns_addr_x", "3", NULL, FALSE},
 			{"vpns_rnet_x", "20", NULL, FALSE},
 			{"vpns_rmsk_x", "20", NULL, FALSE},
+#if defined(APP_WIREGUARD)
+			{"vpns_public_x", "44", NULL, FALSE},
+#endif
 			{0,0,0,0}
 		};
 
@@ -660,6 +663,26 @@
 			{"vpnc_dgw", "", NULL, EVM_RESTART_VPNCLI},
 			{"vpnc_rnet", "", NULL, EVM_RESTART_VPNCLI},
 			{"vpnc_rmsk", "", NULL, EVM_RESTART_VPNCLI},
+#if defined(APP_WIREGUARD)
+			{"vpns_wg_port", "", NULL, EVM_RESTART_VPNSVR},
+			{"vpns_wg_private", "", NULL, EVM_RESTART_VPNSVR},
+			{"vpns_wg_public", "", NULL, EVM_RESTART_VPNSVR},
+			{"vpns_wg_ext_addr", "", NULL, EVM_BLOCK_UNSAFE},
+			{"vpns_wg_mtu", "", NULL, EVM_RESTART_VPNSVR},
+			{"vpnc_wg_mtu", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_if_addr", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_if_private", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_if_preshared", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_if_public", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_if_dns", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_peer_public", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_peer_endpoint", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_peer_port", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_peer_keepalive", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_wg_peer_allowedips", "", NULL, EVM_RESTART_VPNCLI},
+			{"scripts.vpnc_remote_network.list", "File", NULL, EVM_RESTART_VPNCLI},
+			{"scripts.vpnc_exclude_network.list", "File", NULL, EVM_RESTART_VPNCLI},
+#endif
 #if defined(APP_OPENVPN)
 			{"vpns_ov_mode", "", NULL, EVM_RESTART_VPNSVR},
 			{"vpns_ov_prot", "", NULL, EVM_RESTART_VPNSVR},
