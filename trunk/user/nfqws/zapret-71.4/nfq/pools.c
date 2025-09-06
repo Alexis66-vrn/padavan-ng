@@ -12,7 +12,7 @@
 		HASH_DEL(*ppool, elem); \
 		free(elem); \
 	}
-	
+
 #define ADD_STR_POOL(etype, ppool, keystr, keystr_len) \
 	etype *elem; \
 	if (!(elem = (etype*)malloc(sizeof(etype)))) \
@@ -25,7 +25,7 @@
 	memcpy(elem->str, keystr, keystr_len); \
 	elem->str[keystr_len] = 0; \
 	oom = false; \
-	HASH_ADD_KEYPTR(hh, *ppool, elem->str, strlen(elem->str), elem); \
+	HASH_ADD_KEYPTR(hh, *ppool, elem->str, keystr_len, elem); \
 	if (oom) \
 	{ \
 		free(elem->str); \
@@ -33,9 +33,12 @@
 		return false; \
 	}
 #define ADD_HOSTLIST_POOL(etype, ppool, keystr, keystr_len, flg) \
-	ADD_STR_POOL(etype,ppool,keystr,keystr_len); \
-	elem->flags = flg;
-
+	etype *elem_find; \
+	HASH_FIND(hh, *ppool, keystr, keystr_len, elem_find); \
+	if (!elem_find) { \
+		ADD_STR_POOL(etype,ppool,keystr,keystr_len); \
+		elem->flags = flg; \
+	}
 
 #undef uthash_nonfatal_oom
 #define uthash_nonfatal_oom(elt) ut_oom_recover(elt)
@@ -158,6 +161,19 @@ void strlist_destroy(struct str_list_head *head)
 		LIST_REMOVE(entry, next);
 		strlist_entry_destroy(entry);
 	}
+}
+bool strlist_search(const struct str_list_head *head, const char *str)
+{
+	struct str_list *entry;
+	if (str)
+	{
+		LIST_FOREACH(entry, head, next)
+		{
+			if (!strcmp(entry->str, str))
+				return true;
+		}
+	}
+	return false;
 }
 
 
@@ -617,6 +633,7 @@ static void ipcache_item_init(ip_cache_item *item)
 	ipcache_item_touch(item);
 	item->hostname = NULL;
 	item->hostname_is_ip = false;
+	item->hops = 0;
 }
 static void ipcache_item_destroy(ip_cache_item *item)
 {
@@ -633,29 +650,30 @@ static void ipcache4Destroy(ip_cache4 **ipcache)
 		free(elem);
 	}
 }
-static void ipcache4Key(ip4if *key, const struct in_addr *a)
+static void ipcache4Key(ip4if *key, const struct in_addr *a, const char *iface)
 {
 	memset(key,0,sizeof(*key)); // make sure everything is zero
 	key->addr = *a;
+	if (iface) snprintf(key->iface,sizeof(key->iface),"%s",iface);
 }
-static ip_cache4 *ipcache4Find(ip_cache4 *ipcache, const struct in_addr *a)
+static ip_cache4 *ipcache4Find(ip_cache4 *ipcache, const struct in_addr *a, const char *iface)
 {
 	ip_cache4 *entry;
 	struct ip4if key;
 
-	ipcache4Key(&key,a);
+	ipcache4Key(&key,a,iface);
 	HASH_FIND(hh, ipcache, &key, sizeof(key), entry);
 	return entry;
 }
-static ip_cache4 *ipcache4Add(ip_cache4 **ipcache, const struct in_addr *a)
+static ip_cache4 *ipcache4Add(ip_cache4 **ipcache, const struct in_addr *a, const char *iface)
 {
 	// avoid dups
-	ip_cache4 *entry = ipcache4Find(*ipcache,a);
+	ip_cache4 *entry = ipcache4Find(*ipcache,a,iface);
 	if (entry) return entry; // already included
 
 	entry = malloc(sizeof(ip_cache4));
 	if (!entry) return NULL;
-	ipcache4Key(&entry->key,a);
+	ipcache4Key(&entry->key,a,iface);
 
 	oom = false;
 	HASH_ADD(hh, *ipcache, key, sizeof(entry->key), entry);
@@ -676,7 +694,7 @@ static void ipcache4Print(ip_cache4 *ipcache)
 	{
 		*s_ip=0;
 		inet_ntop(AF_INET, &ipc->key.addr, s_ip, sizeof(s_ip));
-		printf("%s : hostname=%s hostname_is_ip=%u now=last+%llu\n", s_ip, ipc->data.hostname ? ipc->data.hostname : "", ipc->data.hostname_is_ip, (unsigned long long)(now-ipc->data.last));
+		printf("%s iface=%s : hops %u hostname=%s hostname_is_ip=%u now=last+%llu\n", s_ip, ipc->key.iface, ipc->data.hops, ipc->data.hostname ? ipc->data.hostname : "", ipc->data.hostname_is_ip, (unsigned long long)(now-ipc->data.last));
 	}
 }
 
@@ -690,29 +708,30 @@ static void ipcache6Destroy(ip_cache6 **ipcache)
 		free(elem);
 	}
 }
-static void ipcache6Key(ip6if *key, const struct in6_addr *a)
+static void ipcache6Key(ip6if *key, const struct in6_addr *a, const char *iface)
 {
 	memset(key,0,sizeof(*key)); // make sure everything is zero
 	key->addr = *a;
+	if (iface) snprintf(key->iface,sizeof(key->iface),"%s",iface);
 }
-static ip_cache6 *ipcache6Find(ip_cache6 *ipcache, const struct in6_addr *a)
+static ip_cache6 *ipcache6Find(ip_cache6 *ipcache, const struct in6_addr *a, const char *iface)
 {
 	ip_cache6 *entry;
 	ip6if key;
 
-	ipcache6Key(&key,a);
+	ipcache6Key(&key,a,iface);
 	HASH_FIND(hh, ipcache, &key, sizeof(key), entry);
 	return entry;
 }
-static ip_cache6 *ipcache6Add(ip_cache6 **ipcache, const struct in6_addr *a)
+static ip_cache6 *ipcache6Add(ip_cache6 **ipcache, const struct in6_addr *a, const char *iface)
 {
 	// avoid dups
-	ip_cache6 *entry = ipcache6Find(*ipcache,a);
+	ip_cache6 *entry = ipcache6Find(*ipcache,a,iface);
 	if (entry) return entry; // already included
 
 	entry = malloc(sizeof(ip_cache6));
 	if (!entry) return NULL;
-	ipcache6Key(&entry->key,a);
+	ipcache6Key(&entry->key,a,iface);
 
 	oom = false;
 	HASH_ADD(hh, *ipcache, key, sizeof(entry->key), entry);
@@ -733,7 +752,7 @@ static void ipcache6Print(ip_cache6 *ipcache)
 	{
 		*s_ip=0;
 		inet_ntop(AF_INET6, &ipc->key.addr, s_ip, sizeof(s_ip));
-		printf("%s : hostname=%s hostname_is_ip=%u now=last+%llu\n", s_ip, ipc->data.hostname ? ipc->data.hostname : "", ipc->data.hostname_is_ip, (unsigned long long)(now-ipc->data.last));
+		printf("%s iface=%s : hops %u hostname=%s hostname_is_ip=%u now=last+%llu\n", s_ip, ipc->key.iface, ipc->data.hops, ipc->data.hostname ? ipc->data.hostname : "", ipc->data.hostname_is_ip, (unsigned long long)(now-ipc->data.last));
 	}
 }
 
@@ -748,13 +767,13 @@ void ipcachePrint(ip_cache *ipcache)
 	ipcache6Print(ipcache->ipcache6);
 }
 
-ip_cache_item *ipcacheTouch(ip_cache *ipcache, const struct in_addr *a4, const struct in6_addr *a6)
+ip_cache_item *ipcacheTouch(ip_cache *ipcache, const struct in_addr *a4, const struct in6_addr *a6, const char *iface)
 {
 	ip_cache4 *ipcache4;
 	ip_cache6 *ipcache6;
 	if (a4)
 	{
-		if ((ipcache4 = ipcache4Add(&ipcache->ipcache4,a4)))
+		if ((ipcache4 = ipcache4Add(&ipcache->ipcache4,a4,iface)))
 		{
 			ipcache_item_touch(&ipcache4->data);
 			return &ipcache4->data;
@@ -762,7 +781,7 @@ ip_cache_item *ipcacheTouch(ip_cache *ipcache, const struct in_addr *a4, const s
 	}
 	else if (a6)
 	{
-		if ((ipcache6 = ipcache6Add(&ipcache->ipcache6,a6)))
+		if ((ipcache6 = ipcache6Add(&ipcache->ipcache6,a6,iface)))
 		{
 			ipcache_item_touch(&ipcache6->data);
 			return &ipcache6->data;
@@ -818,3 +837,4 @@ void ipcachePurgeRateLimited(ip_cache *ipcache, time_t lifetime)
 		ipcache_purge_prev = now;
 	}
 }
+
