@@ -1032,6 +1032,9 @@ function zapret_strategy_change(o, v) {
                                                             </div>
                                                         </td>
                                                     </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
 
                                         <tr id="row_tor">
                                             <th width="50%"><#Adm_Svc_tor#></th>
