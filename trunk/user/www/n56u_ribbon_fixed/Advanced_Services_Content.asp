@@ -795,7 +795,6 @@ function zapret_strategy_change(o, v) {
                                                 <span class="caption-bold">DoH Server 1:</span>
                                                 <input type="text" maxlength="60" class="input" size="10" style="width: 354px;" name="doh_server1" value="<% nvram_get_x("", "doh_server1"); %>" onkeypress="return is_string(this,event);"/>
                                                 <select class="input" id="doh_server_list1" style="max-width:20px;" onchange="on_doh_select_change(this, 1)" onclick="this.selectedIndex=-1;">
-                                                    <option value="https://0ms.dev/dns-query">0ms DNS</option>
                                                     <option value="https://dns.adguard-dns.com/dns-query">Adguard: ads and trackers</option>
                                                     <option value="https://family.adguard-dns.com/dns-query">Adguard: family filter</option>
                                                     <option value="https://unfiltered.adguard-dns.com/dns-query">Adguard: unfiltered</option>
@@ -832,6 +831,7 @@ function zapret_strategy_change(o, v) {
                                                     <option value="https://family.rabbitdns.org/dns-query">Rabbit DNS: family</option>
                                                     <option value="https://security.rabbitdns.org/dns-query">Rabbit DNS: security</option>
                                                     <option value="https://dns.rabbitdns.org/dns-query">Rabbit DNS: unfiltered</option>
+                                                    <option value="https://v.recipes/dns-query">v.recipes DNS</option>
                                                     <option value="https://wikimedia-dns.org/dns-query">Wikimedia DNS</option>
                                                     <option value="https://common.dot.dns.yandex.net/dns-query">Yandex</option>
                                                     <option value="https://family.dot.dns.yandex.net/dns-query">Yandex: family</option>
