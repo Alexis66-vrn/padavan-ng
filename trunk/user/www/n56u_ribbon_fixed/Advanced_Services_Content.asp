@@ -831,7 +831,9 @@ function zapret_strategy_change(o, v) {
                                                     <option value="https://family.rabbitdns.org/dns-query">Rabbit DNS: family</option>
                                                     <option value="https://security.rabbitdns.org/dns-query">Rabbit DNS: security</option>
                                                     <option value="https://dns.rabbitdns.org/dns-query">Rabbit DNS: unfiltered</option>
-                                                    <option value="https://v.recipes/dns-query">v.recipes DNS</option>
+                                                    <option value="https://v.recipes/dns-query">v.recipes: unfiltered</option>
+                                                    <option value="https://v.recipes/dns-security">v.recipes: security</option>
+                                                    <option value="https://v.recipes/dns-adblock">v.recipes: adblock</option>
                                                     <option value="https://wikimedia-dns.org/dns-query">Wikimedia DNS</option>
                                                     <option value="https://common.dot.dns.yandex.net/dns-query">Yandex</option>
                                                     <option value="https://family.dot.dns.yandex.net/dns-query">Yandex: family</option>
