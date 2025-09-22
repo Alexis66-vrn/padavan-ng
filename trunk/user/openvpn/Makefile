@@ -1,16 +1,15 @@
-SRC_NAME=openvpn-2.6.14
-SRC_URL=https://github.com/OpenVPN/openvpn/archive/refs/tags/v2.6.14.tar.gz
+SRC_NAME=openvpn-2.6.15
+SRC_URL=https://github.com/OpenVPN/openvpn/archive/refs/tags/v2.6.15.tar.gz
 
 CFLAGS += -ffunction-sections -fdata-sections -fvisibility=hidden
 LDFLAGS += -Wl,--gc-sections
 
 all: download_test extract_test config_test
-#all: config_test
 	$(MAKE) -j$(HOST_NCPU) -C $(SRC_NAME)
 
 download_test:
 	( if [ ! -f $(SRC_NAME).tar.gz ]; then \
-		wget -t5 --timeout=20 --no-check-certificate -O $(SRC_NAME).tar.gz $(SRC_URL); \
+		wget -t5 -T20 --no-check-certificate -O $(SRC_NAME).tar.gz $(SRC_URL) || rm -f $(SRC_NAME).tar.gz; \
 	fi )
 
 extract_test:
