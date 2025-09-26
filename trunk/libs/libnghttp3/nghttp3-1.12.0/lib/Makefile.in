@@ -146,7 +146,7 @@ am__objects_2 = nghttp3_rcbuf.lo nghttp3_mem.lo nghttp3_str.lo \
 	nghttp3_range.lo nghttp3_http.lo nghttp3_version.lo \
 	nghttp3_balloc.lo nghttp3_opl.lo nghttp3_objalloc.lo \
 	nghttp3_unreachable.lo nghttp3_settings.lo \
-	nghttp3_callbacks.lo sfparse/sfparse.lo
+	nghttp3_callbacks.lo nghttp3_ratelim.lo sfparse/sfparse.lo
 am_libnghttp3_la_OBJECTS = $(am__objects_1) $(am__objects_2)
 libnghttp3_la_OBJECTS = $(am_libnghttp3_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -183,8 +183,8 @@ am__depfiles_remade = ./$(DEPDIR)/nghttp3_balloc.Plo \
 	./$(DEPDIR)/nghttp3_qpack.Plo \
 	./$(DEPDIR)/nghttp3_qpack_huffman.Plo \
 	./$(DEPDIR)/nghttp3_qpack_huffman_data.Plo \
-	./$(DEPDIR)/nghttp3_range.Plo ./$(DEPDIR)/nghttp3_rcbuf.Plo \
-	./$(DEPDIR)/nghttp3_ringbuf.Plo \
+	./$(DEPDIR)/nghttp3_range.Plo ./$(DEPDIR)/nghttp3_ratelim.Plo \
+	./$(DEPDIR)/nghttp3_rcbuf.Plo ./$(DEPDIR)/nghttp3_ringbuf.Plo \
 	./$(DEPDIR)/nghttp3_settings.Plo ./$(DEPDIR)/nghttp3_str.Plo \
 	./$(DEPDIR)/nghttp3_stream.Plo ./$(DEPDIR)/nghttp3_tnode.Plo \
 	./$(DEPDIR)/nghttp3_unreachable.Plo \
@@ -483,6 +483,7 @@ OBJECTS = \
 	nghttp3_unreachable.c \
 	nghttp3_settings.c \
 	nghttp3_callbacks.c \
+	nghttp3_ratelim.c \
 	sfparse/sfparse.c
 
 HFILES = \
@@ -514,6 +515,7 @@ HFILES = \
 	nghttp3_unreachable.h \
 	nghttp3_settings.h \
 	nghttp3_callbacks.h \
+	nghttp3_ratelim.h \
 	sfparse/sfparse.h \
 	nghttp3_macro.h
 
@@ -632,6 +634,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nghttp3_qpack_huffman.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nghttp3_qpack_huffman_data.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nghttp3_range.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nghttp3_ratelim.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nghttp3_rcbuf.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nghttp3_ringbuf.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nghttp3_settings.Plo@am__quote@ # am--include-marker
@@ -925,6 +928,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/nghttp3_qpack_huffman.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_qpack_huffman_data.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_range.Plo
+	-rm -f ./$(DEPDIR)/nghttp3_ratelim.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_rcbuf.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_ringbuf.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_settings.Plo
@@ -1001,6 +1005,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/nghttp3_qpack_huffman.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_qpack_huffman_data.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_range.Plo
+	-rm -f ./$(DEPDIR)/nghttp3_ratelim.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_rcbuf.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_ringbuf.Plo
 	-rm -f ./$(DEPDIR)/nghttp3_settings.Plo
