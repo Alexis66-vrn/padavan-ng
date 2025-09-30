@@ -1,4 +1,4 @@
-SRC_NAME=util-linux-2.41.1
+SRC_NAME=util-linux-2.41.2
 SRC_URL=https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.41/$(SRC_NAME).tar.xz
 THISDIR = $(shell pwd)
 
@@ -12,7 +12,7 @@ all: config_test
 
 download_test:
 	( if [ ! -f $(SRC_NAME).tar.xz ]; then \
-		wget -t5 --timeout=20 --no-check-certificate -O $(SRC_NAME).tar.xz $(SRC_URL); \
+		wget -t5 -T20 --no-check-certificate -O $(SRC_NAME).tar.xz $(SRC_URL) || rm -f $(SRC_NAME).tar.xz; \
 	fi )
 
 extract_test:
